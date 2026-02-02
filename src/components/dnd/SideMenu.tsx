@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Scroll, Backpack, BookOpen, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Scroll, Backpack, BookOpen, Settings, LogOut, FileUp } from 'lucide-react';
 import { signOut } from '@/actions/auth-actions';
 import { UserProfile } from './UserProfile';
 import { useAuth } from '../providers/AuthContext';
@@ -14,7 +14,7 @@ export function SideMenu() {
 
     const links = [
         { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/dashboard/character', label: 'Character Sheet', icon: Scroll },
+        { href: '/dashboard/characters', label: 'Character Sheet', icon: Scroll },
         { href: '/dashboard/inventory', label: 'Inventory', icon: Backpack },
         { href: '/dashboard/spells', label: 'Spells', icon: BookOpen },
         { href: '/dashboard/settings', label: 'Settings', icon: Settings },
