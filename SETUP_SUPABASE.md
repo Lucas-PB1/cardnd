@@ -58,3 +58,23 @@ npm run dev
 ## Troubleshooting
 - **Login 404?**: Ensure you migrated the folder structure correctly (done in previous steps).
 - **Infinite Loading?**: Check your browser console. If `Supabase URL` is missing, the client won't initialize.
+
+## 7. Configure Custom SMTP (Fix Rate Limits)
+The default Supabase email limit is very low (3-5 emails per hour). To fix this, you should use your own SMTP provider.
+
+**Recommendation: Resend (Free Tier is generous)**
+
+1.  Go to [Resend.com](https://resend.com) and create an account.
+2.  Add an API Key.
+3.  In **Supabase Dashboard**:
+    - Go to **Project Settings** -> **Authentication** -> **SMTP Settings**.
+    - Toggle **Enable Custom SMTP**.
+    - **Sender Email**: `onboarding@resend.dev` (or your verified domain).
+    - **Sender Name**: Cardnd
+    - **Host**: `smtp.resend.com`
+    - **Port**: `465`
+    - **Username**: `resend`
+    - **Password**: `re_123456...` (Your Resend API Key).
+4.  Click **Save**.
+
+Now you can send up to 3000 emails/month for free, bypassing the Supabase rate limit.
