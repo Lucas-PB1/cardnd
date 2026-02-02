@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ScrollCard } from '@/components/dnd/ScrollCard';
 import { RuneButton } from '@/components/dnd/RuneButton';
-import { saveCharacter, getClasses, getRaces, getSubclasses } from '@/actions/character-actions';
 import { Save, X, Scroll, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { DND_SKILLS } from '@/lib/constants/dnd-2024';
-import { ClassOption, RaceOption, SubclassOption } from '@/types/character';
+import { useManualCharacterForm } from '@/hooks/useManualCharacterForm';
 
 interface ManualCharacterFormProps {
     onSuccess: () => void;
@@ -15,134 +14,24 @@ interface ManualCharacterFormProps {
 
 /**
  * Component for manually creating a new character entry.
- * Handles fetching of dynamic options (class, race, subclass) and form submission.
+ * Now refactored to use the useManualCharacterForm hook for state and logic.
  */
 export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterFormProps) {
-    const [isSaving, setIsSaving] = useState(false);
-    const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
-
-    const [classOptions, setClassOptions] = useState<ClassOption[]>([]);
-    const [raceOptions, setRaceOptions] = useState<RaceOption[]>([]);
-    const [subclassOptions, setSubclassOptions] = useState<SubclassOption[]>([]);
-    const [isLoadingOptions, setIsLoadingOptions] = useState(true);
-
-    const [formData, setFormData] = useState({
-        name: "New Adventurer",
-        race: "",
-        class: "",
-        subclass: "",
-        level: 1,
-        hp: { max: 10, current: 10 },
-        attributes: {
-            strength: 10,
-            dexterity: 10,
-            constitution: 10,
-            intelligence: 10,
-            wisdom: 10,
-            charisma: 10
-        },
-        skills: {} as Record<string, 'proficient' | 'expertise' | null>,
-        savingThrows: {} as Record<string, boolean>
-    });
-
-    useEffect(() => {
-        const loadOptions = async () => {
-            setIsLoadingOptions(true);
-            try {
-                const [classes, races] = await Promise.all([
-                    getClasses(),
-                    getRaces()
-                ]);
-                setClassOptions(classes as ClassOption[]);
-                setRaceOptions(races as RaceOption[]);
-
-                if (classes.length > 0 && !formData.class) {
-                    setFormData(prev => ({ ...prev, class: classes[0].id }));
-                }
-                if (races.length > 0 && !formData.race) {
-                    setFormData(prev => ({ ...prev, race: races[0].id }));
-                }
-            } catch (error) {
-                console.error("Failed to load options", error);
-                setStatus({ type: 'error', text: 'Failed to load character options.' });
-            } finally {
-                setIsLoadingOptions(false);
-            }
-        };
-        loadOptions();
-    }, [formData.class, formData.race]);
-
-    useEffect(() => {
-        const loadSubclasses = async () => {
-            if (!formData.class) {
-                setSubclassOptions([]);
-                return;
-            }
-            try {
-                const subs = await getSubclasses(formData.class);
-                setSubclassOptions(subs as SubclassOption[]);
-                setFormData(prev => ({ ...prev, subclass: subs.length > 0 ? subs[0].id : '' }));
-            } catch (error) {
-                console.error("Failed to load subclasses", error);
-            }
-        };
-        loadSubclasses();
-    }, [formData.class]);
-
-    const handleSave = async () => {
-        setIsSaving(true);
-        setStatus({ type: 'info', text: 'Inscribing into the guild records...' });
-
-        try {
-            const selectedClass = classOptions.find(c => c.id === formData.class)?.name || formData.class;
-            const selectedRace = raceOptions.find(r => r.id === formData.race)?.name || formData.race;
-            const selectedSubclass = subclassOptions.find(s => s.id === formData.subclass)?.name || formData.subclass;
-
-            const payload = {
-                ...formData,
-                class: selectedClass,
-                race: selectedRace,
-                subclass: selectedSubclass,
-            };
-
-            const result = await saveCharacter(payload);
-
-            if (result.error) {
-                setStatus({ type: 'error', text: result.error });
-            } else {
-                setStatus({ type: 'success', text: `Character "${formData.name}" inscribed successfully!` });
-                setTimeout(() => {
-                    onSuccess();
-                }, 1000);
-            }
-        } catch {
-            setStatus({ type: 'error', text: 'Failed to save character.' });
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const toggleSkill = (skill: string) => {
-        setFormData(prev => {
-            const current = prev.skills[skill];
-            let next: 'proficient' | 'expertise' | null = 'proficient';
-
-            if (current === 'proficient') next = 'expertise';
-            else if (current === 'expertise') next = null;
-
-            return {
-                ...prev,
-                skills: { ...prev.skills, [skill]: next }
-            };
-        });
-    };
-
-    const toggleSave = (ability: string) => {
-        setFormData(prev => ({
-            ...prev,
-            savingThrows: { ...prev.savingThrows, [ability]: !prev.savingThrows[ability] }
-        }));
-    };
+    const {
+        formData,
+        status,
+        isSaving,
+        classOptions,
+        raceOptions,
+        subclassOptions,
+        isLoadingOptions,
+        handleSave,
+        toggleSkill,
+        toggleSave,
+        updateFormData,
+        updateHp,
+        updateAttribute
+    } = useManualCharacterForm({ onSuccess });
 
     return (
         <ScrollCard>
@@ -171,7 +60,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                             <input
                                 type="text"
                                 value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                onChange={(e) => updateFormData({ name: e.target.value })}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif font-bold text-lg text-stone-900 focus:outline-none focus:border-amber-500 placeholder-stone-400"
                             />
                         </div>
@@ -182,7 +71,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Race</label>
                             <select
                                 value={formData.race}
-                                onChange={(e) => setFormData({ ...formData, race: e.target.value })}
+                                onChange={(e) => updateFormData({ race: e.target.value })}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif text-stone-900 focus:outline-none focus:border-amber-500"
                             >
                                 <option value="">Select Race</option>
@@ -195,7 +84,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Class</label>
                             <select
                                 value={formData.class}
-                                onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+                                onChange={(e) => updateFormData({ class: e.target.value })}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif text-stone-900 focus:outline-none focus:border-amber-500"
                             >
                                 <option value="">Select Class</option>
@@ -208,7 +97,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Subclass</label>
                             <select
                                 value={formData.subclass}
-                                onChange={(e) => setFormData({ ...formData, subclass: e.target.value })}
+                                onChange={(e) => updateFormData({ subclass: e.target.value })}
                                 disabled={subclassOptions.length === 0}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif text-stone-900 focus:outline-none focus:border-amber-500 disabled:opacity-50"
                             >
@@ -228,7 +117,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                                 min="1"
                                 max="20"
                                 value={formData.level}
-                                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) || 1 })}
+                                onChange={(e) => updateFormData({ level: parseInt(e.target.value) || 1 })}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif text-stone-900 focus:outline-none focus:border-amber-500"
                             />
                         </div>
@@ -237,10 +126,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                             <input
                                 type="number"
                                 value={formData.hp.max}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    hp: { ...formData.hp, max: parseInt(e.target.value) || 1, current: parseInt(e.target.value) || 1 }
-                                })}
+                                onChange={(e) => updateHp(parseInt(e.target.value) || 1)}
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-bold text-red-900 focus:outline-none focus:border-red-500"
                             />
                         </div>
@@ -257,10 +143,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                                         min="1"
                                         max="30"
                                         value={value as number}
-                                        onChange={(e) => setFormData({
-                                            ...formData,
-                                            attributes: { ...formData.attributes, [key]: parseInt(e.target.value) || 10 }
-                                        })}
+                                        onChange={(e) => updateAttribute(key, parseInt(e.target.value) || 10)}
                                         className="w-full bg-transparent text-center font-bold text-amber-500 text-xl focus:outline-none focus:text-amber-400 p-0"
                                     />
                                 </div>

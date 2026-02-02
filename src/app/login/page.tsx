@@ -1,41 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { DragonInput } from '@/components/dnd/DragonInput';
 import { RuneButton } from '@/components/dnd/RuneButton';
 import { ScrollCard } from '@/components/dnd/ScrollCard';
-import { loginWithEmail } from '@/actions/auth-actions';
+import { useAuth } from '@/hooks/useAuth';
 import { Scroll } from 'lucide-react';
 
 /**
  * Login page component.
- * Allows users to authenticate via email OTP.
+ * Simplified to use the useAuth hook for authentication logic.
  */
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setMessage(null);
-
-        try {
-            const result = await loginWithEmail(email);
-
-            if (result.error) {
-                setMessage({ type: 'error', text: result.error });
-            } else {
-                setMessage({ type: 'success', text: 'Magic link sent! Check your raven (email).' });
-                setEmail('');
-            }
-        } catch {
-            setMessage({ type: 'error', text: 'An arcane error occurred.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { email, setEmail, isLoading, message, handleLogin } = useAuth();
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#1c1917] bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] p-4">
@@ -53,7 +30,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6">
                         <DragonInput
                             id="email"
                             type="email"

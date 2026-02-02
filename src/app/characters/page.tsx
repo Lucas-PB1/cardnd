@@ -1,47 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/dnd/DashboardLayout';
 import { ScrollCard } from '@/components/dnd/ScrollCard';
 import { RuneButton } from '@/components/dnd/RuneButton';
 import { ManualCharacterForm } from '@/components/dnd/ManualCharacterForm';
-import { getCharacters } from '@/actions/character-actions';
+import { useCharacters } from '@/hooks/useCharacters';
 import { Plus, Users, Skull } from 'lucide-react';
-
-interface Character {
-    id: string;
-    name: string;
-    class: string;
-    race: string;
-    level: number;
-    hp_max: number;
-    hp_current: number;
-}
 
 export default function CharactersPage() {
     const [isCreating, setIsCreating] = useState(false);
-    const [characters, setCharacters] = useState<Character[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const fetchCharacters = async () => {
-        setIsLoading(true);
-        try {
-            const data = await getCharacters();
-            setCharacters(data || []);
-        } catch (error) {
-            console.error('Failed to fetch characters', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCharacters();
-    }, []);
+    const { characters, isLoading, refreshCharacters } = useCharacters();
 
     const handleCreateSuccess = () => {
         setIsCreating(false);
-        fetchCharacters();
+        refreshCharacters();
     };
 
     return (
