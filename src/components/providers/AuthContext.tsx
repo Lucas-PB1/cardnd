@@ -2,7 +2,8 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js';
+import { User } from '@/services/auth/IAuthService';
 
 type AuthContextType = {
     user: User | null;
@@ -12,6 +13,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provider component that managed the authentication state across the application.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
@@ -25,10 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const checkUser = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) throw error;
-
-                let currentUser = session?.user ?? null;
+                const currentUser = session?.user as User ?? null;
 
                 if (currentUser) {
                     const { data: profile } = await supabase
@@ -38,8 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         .single();
 
                     if (profile) {
-                        // We manually attach the profile to the user object, mimicking the interface we defined
-                        (currentUser as any).profile = {
+                        currentUser.profile = {
                             display_name: profile.display_name,
                             character_class: profile.character_class,
                             bio: profile.bio,
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            let currentUser = session?.user ?? null;
+            const currentUser = session?.user as User ?? null;
             if (currentUser) {
                 const { data: profile } = await supabase
                     .from('profiles')
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     .single();
 
                 if (profile) {
-                    (currentUser as any).profile = {
+                    currentUser.profile = {
                         display_name: profile.display_name,
                         character_class: profile.character_class,
                         bio: profile.bio,
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             subscription.unsubscribe();
         };
-    }, [supabase]);
+    }, [supabase, session]);
 
     return (
         <AuthContext.Provider value={{ user, session, loading }}>

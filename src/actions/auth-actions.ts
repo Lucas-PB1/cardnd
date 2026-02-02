@@ -1,9 +1,12 @@
 'use server';
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+/**
+ * Initiates the login process using email OTP.
+ */
 export async function loginWithEmail(email: string) {
     const cookieStore = await cookies();
 
@@ -21,9 +24,6 @@ export async function loginWithEmail(email: string) {
                             cookieStore.set(name, value, options)
                         );
                     } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
                     }
                 },
             },
@@ -44,6 +44,9 @@ export async function loginWithEmail(email: string) {
     return { success: true };
 }
 
+/**
+ * Signs out the current user and redirects to the login page.
+ */
 export async function signOut() {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -60,9 +63,6 @@ export async function signOut() {
                             cookieStore.set(name, value, options)
                         );
                     } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
                     }
                 },
             },

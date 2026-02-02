@@ -6,6 +6,9 @@ interface UserProfileProps {
     level?: number;
 }
 
+/**
+ * Component for displaying user profile information in the side menu.
+ */
 export function UserProfile({ email, level = 1 }: UserProfileProps) {
     return (
         <div className="flex items-center gap-3 p-4 bg-stone-800/50 rounded-lg border border-stone-700 shadow-md transform transition-transform hover:scale-[1.02]">

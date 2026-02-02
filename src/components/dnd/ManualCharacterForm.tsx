@@ -13,17 +13,19 @@ interface ManualCharacterFormProps {
     onCancel: () => void;
 }
 
+/**
+ * Component for manually creating a new character entry.
+ * Handles fetching of dynamic options (class, race, subclass) and form submission.
+ */
 export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
-    // Options State
     const [classOptions, setClassOptions] = useState<ClassOption[]>([]);
     const [raceOptions, setRaceOptions] = useState<RaceOption[]>([]);
     const [subclassOptions, setSubclassOptions] = useState<SubclassOption[]>([]);
     const [isLoadingOptions, setIsLoadingOptions] = useState(true);
 
-    // Form State
     const [formData, setFormData] = useState({
         name: "New Adventurer",
         race: "",
@@ -43,9 +45,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
         savingThrows: {} as Record<string, boolean>
     });
 
-    // ... existing code ...
-
-    // Fetch initial options
     useEffect(() => {
         const loadOptions = async () => {
             setIsLoadingOptions(true);
@@ -57,7 +56,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                 setClassOptions(classes as ClassOption[]);
                 setRaceOptions(races as RaceOption[]);
 
-                // Set defaults if available
                 if (classes.length > 0 && !formData.class) {
                     setFormData(prev => ({ ...prev, class: classes[0].id }));
                 }
@@ -72,9 +70,8 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
             }
         };
         loadOptions();
-    }, []);
+    }, [formData.class, formData.race]);
 
-    // Fetch subclasses when class changes
     useEffect(() => {
         const loadSubclasses = async () => {
             if (!formData.class) {
@@ -84,7 +81,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
             try {
                 const subs = await getSubclasses(formData.class);
                 setSubclassOptions(subs as SubclassOption[]);
-                // Reset subclass when class changes
                 setFormData(prev => ({ ...prev, subclass: subs.length > 0 ? subs[0].id : '' }));
             } catch (error) {
                 console.error("Failed to load subclasses", error);
@@ -98,12 +94,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
         setStatus({ type: 'info', text: 'Inscribing into the guild records...' });
 
         try {
-            // Find logic to get actual names vs IDs could go here if needed, 
-            // but we likely want to store IDs or both. 
-            // The schema expects text for class/race, let's store the ID or Name.
-            // Existing schema uses text names like 'Fighter'. 
-            // The options have 'name'. Let's find the name for the ID.
-
             const selectedClass = classOptions.find(c => c.id === formData.class)?.name || formData.class;
             const selectedRace = raceOptions.find(r => r.id === formData.race)?.name || formData.race;
             const selectedSubclass = subclassOptions.find(s => s.id === formData.subclass)?.name || formData.subclass;
@@ -113,7 +103,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                 class: selectedClass,
                 race: selectedRace,
                 subclass: selectedSubclass,
-                // Keep the rest
             };
 
             const result = await saveCharacter(payload);
@@ -126,7 +115,7 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                     onSuccess();
                 }, 1000);
             }
-        } catch (error) {
+        } catch {
             setStatus({ type: 'error', text: 'Failed to save character.' });
         } finally {
             setIsSaving(false);
@@ -176,7 +165,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                         {isLoadingOptions && <Loader2 className="w-4 h-4 animate-spin text-amber-700" />}
                     </div>
 
-                    {/* Basic Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Name</label>
@@ -190,7 +178,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Race */}
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Race</label>
                             <select
@@ -204,7 +191,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                                 ))}
                             </select>
                         </div>
-                        {/* Class */}
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Class</label>
                             <select
@@ -218,7 +204,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                                 ))}
                             </select>
                         </div>
-                        {/* Subclass */}
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Subclass</label>
                             <select
@@ -236,7 +221,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Level */}
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Level</label>
                             <input
@@ -248,7 +232,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                                 className="w-full bg-white/50 border border-[#d4c5a0] rounded px-3 py-2 font-serif text-stone-900 focus:outline-none focus:border-amber-500"
                             />
                         </div>
-                        {/* HP */}
                         <div className="space-y-1">
                             <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Max HP</label>
                             <input
@@ -263,7 +246,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                         </div>
                     </div>
 
-                    {/* Attributes */}
                     <div className="space-y-2">
                         <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Attributes</label>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -286,7 +268,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                         </div>
                     </div>
 
-                    {/* Saving Throws */}
                     <div className="space-y-2">
                         <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Saving Throws</label>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -304,7 +285,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                         </div>
                     </div>
 
-                    {/* Skills */}
                     <div className="space-y-2">
                         <label className="block text-stone-600 text-xs font-bold uppercase tracking-wider">Skills</label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -340,7 +320,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
 
                 </div>
 
-                {/* Status Message */}
                 {status && (
                     <div className={`p-4 rounded-lg font-serif border flex items-center gap-3 ${status.type === 'success' ? 'bg-green-900/20 border-green-800 text-green-400' :
                         status.type === 'error' ? 'bg-red-900/20 border-red-800 text-red-400' :
@@ -353,7 +332,6 @@ export function ManualCharacterForm({ onSuccess, onCancel }: ManualCharacterForm
                     </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex justify-end pt-4 gap-3">
                     <RuneButton variant="secondary" onClick={onCancel} disabled={isSaving}>
                         <X className="w-4 h-4 mr-2" />

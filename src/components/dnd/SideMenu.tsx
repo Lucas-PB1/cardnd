@@ -3,33 +3,34 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Scroll, Backpack, BookOpen, Settings, LogOut, FileUp } from 'lucide-react';
+import { LayoutDashboard, Scroll, Backpack, BookOpen, Settings, LogOut } from 'lucide-react';
 import { signOut } from '@/actions/auth-actions';
 import { UserProfile } from './UserProfile';
 import { useAuth } from '../providers/AuthContext';
 
+/**
+ * Sidebar navigation component for the dashboard.
+ */
 export function SideMenu() {
     const pathname = usePathname();
     const { user } = useAuth();
 
     const links = [
-        { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/dashboard/characters', label: 'Character Sheet', icon: Scroll },
-        { href: '/dashboard/inventory', label: 'Inventory', icon: Backpack },
-        { href: '/dashboard/spells', label: 'Spells', icon: BookOpen },
-        { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+        { href: '/overview', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/characters', label: 'Character Sheet', icon: Scroll },
+        { href: '/inventory', label: 'Inventory', icon: Backpack },
+        { href: '/spells', label: 'Spells', icon: BookOpen },
+        { href: '/settings', label: 'Settings', icon: Settings },
     ];
 
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-[#1c1917] border-r border-[#292524] flex flex-col shadow-2xl z-50">
-            {/* Header / Logo Area */}
             <div className="p-6 border-b border-[#292524] flex items-center justify-center">
                 <h1 className="text-2xl font-serif font-bold bg-gradient-to-r from-amber-500 to-red-600 bg-clip-text text-transparent drop-shadow-sm">
                     Cardnd
                 </h1>
             </div>
 
-            {/* Navigation Links */}
             <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
                 {links.map((link) => {
                     const isActive = pathname === link.href;
@@ -53,7 +54,6 @@ export function SideMenu() {
                 })}
             </nav>
 
-            {/* Footer / User Profile */}
             <div className="p-4 border-t border-[#292524] space-y-4">
                 <UserProfile email={user?.email} level={5} />
 

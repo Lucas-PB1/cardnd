@@ -1,3 +1,7 @@
+/**
+ * Represents the full data structure for a D&D character.
+ * Used for creating and saving character data.
+ */
 export interface CharacterData {
     name: string;
     class: string;
@@ -7,7 +11,6 @@ export interface CharacterData {
         max: number;
         current: number;
     };
-    // ... existing code ...
     attributes: {
         strength: number;
         dexterity: number;

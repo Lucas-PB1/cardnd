@@ -11,6 +11,9 @@ export class SupabaseAuthService implements IAuthService {
         );
     }
 
+    /**
+     * Attempts to sign in with an email using a one-time password (OTP).
+     */
     async login(email: string): Promise<{ error: Error | null }> {
         const { error } = await this.supabase.auth.signInWithOtp({
             email,
@@ -21,11 +24,17 @@ export class SupabaseAuthService implements IAuthService {
         return { error };
     }
 
+    /**
+     * Signs out the current user.
+     */
     async logout(): Promise<{ error: Error | null }> {
         const { error } = await this.supabase.auth.signOut();
         return { error };
     }
 
+    /**
+     * Retrieves the current user and their profile data.
+     */
     async getUser(): Promise<{ user: User | null; error: Error | null }> {
         const { data: { user }, error } = await this.supabase.auth.getUser();
         if (user) {
@@ -47,10 +56,17 @@ export class SupabaseAuthService implements IAuthService {
         return { user: user as User, error };
     }
 
+    /**
+     * Retrieves the current session.
+     */
     async getSession(): Promise<{ session: unknown; error: Error | null }> {
         const { data: { session }, error } = await this.supabase.auth.getSession();
         return { session, error };
     }
+
+    /**
+     * Updates the user's profile information.
+     */
     async updateProfile(data: { displayName?: string; bio?: string; characterClass?: string }): Promise<{ error: Error | null }> {
         const { error } = await this.supabase.auth.updateUser({
             data: {

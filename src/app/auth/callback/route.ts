@@ -2,10 +2,14 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+/**
+ * Handles the authentication callback from Supabase.
+ * Exchanges the auth code for a session and redirects the user.
+ */
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get('code');
-    const next = searchParams.get('next') ?? '/';
+    const next = searchParams.get('next') ?? '/overview';
 
     if (code) {
         const cookieStore = await cookies();
@@ -32,6 +36,5 @@ export async function GET(request: Request) {
         }
     }
 
-    // return the user to an error page with instructions
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }

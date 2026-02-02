@@ -6,6 +6,9 @@ interface RuneButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
     variant?: 'primary' | 'secondary';
 }
 
+/**
+ * A themed button component with a rune-inspired aesthetic.
+ */
 export function RuneButton({
     children,
     className,
@@ -31,7 +34,6 @@ export function RuneButton({
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
                 {children}
             </span>
-            {/* Corner accents */}
             <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-amber-300 opacity-50"></div>
             <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-amber-300 opacity-50"></div>
             <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-amber-300 opacity-50"></div>

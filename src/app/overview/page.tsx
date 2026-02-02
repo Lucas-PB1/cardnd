@@ -7,6 +7,10 @@ import { useAuth } from '@/components/providers/AuthContext';
 import { Loader2, Sword, Shield, Coins, Crown } from 'lucide-react';
 import { ScrollCard } from '@/components/dnd/ScrollCard';
 
+/**
+ * Main dashboard page for authenticated users.
+ * Displays welcome message, stats, and recent activity.
+ */
 export default function DashboardPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
@@ -30,21 +34,18 @@ export default function DashboardPage() {
     return (
         <DashboardLayout>
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {/* Welcome Banner */}
                 <div className="relative overflow-hidden rounded-xl border border-amber-900/50 bg-gradient-to-r from-red-950 to-amber-950 p-8 shadow-2xl">
                     <div className="relative z-10">
                         <h1 className="text-4xl font-serif font-bold text-[#fdf6e3] mb-2 drop-shadow-md">
                             Welcome back, <span className="text-amber-500">{user.email?.split('@')[0]}</span>
                         </h1>
                         <p className="text-amber-200/80 font-serif text-lg italic max-w-2xl">
-                            "The tavern is warm, and your adventures await. What tales shall we weave today?"
+                            &quot;The tavern is warm, and your adventures await. What tales shall we weave today?&quot;
                         </p>
                     </div>
-                    {/* Decorative Background Icon */}
                     <Crown className="absolute -right-4 -bottom-8 w-64 h-64 text-amber-900/10 rotate-12" />
                 </div>
 
-                {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <StatCard
                         icon={Sword}
@@ -69,7 +70,6 @@ export default function DashboardPage() {
                     />
                 </div>
 
-                {/* Recent Activity Section */}
                 <ScrollCard className="min-h-[300px]">
                     <h2 className="text-2xl font-serif font-bold text-amber-900 mb-6 flex items-center gap-2">
                         <ScrollCardIcon /> Recent Chronicles
@@ -98,7 +98,18 @@ export default function DashboardPage() {
     );
 }
 
-function StatCard({ icon: Icon, label, value, color, gradient }: any) {
+interface StatCardProps {
+    icon: React.ElementType;
+    label: string;
+    value: string;
+    color: string;
+    gradient: string;
+}
+
+/**
+ * Component for displaying a single statistic in the dashboard.
+ */
+function StatCard({ icon: Icon, label, value, color, gradient }: StatCardProps) {
     return (
         <div className={`relative overflow-hidden rounded-lg border border-stone-800 bg-gradient-to-br ${gradient} p-6 shadow-lg group hover:border-stone-700 transition-all cursor-default`}>
             <div className="flex items-start justify-between">

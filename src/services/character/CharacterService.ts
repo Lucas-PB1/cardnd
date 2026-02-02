@@ -3,7 +3,13 @@ import { CharacterData } from '@/types/character';
 import { createServerClient } from '@supabase/ssr';
 
 
+/**
+ * Service for handling character-related operations in Supabase.
+ */
 export class CharacterService {
+    /**
+     * Fetches all characters for a specific user.
+     */
     static async getCharacters(userId: string) {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -37,6 +43,9 @@ export class CharacterService {
         return data;
     }
 
+    /**
+     * Creates a new character with attributes, skills, and saving throws.
+     */
     static async createCharacter(userId: string, data: CharacterData) {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -56,7 +65,6 @@ export class CharacterService {
             }
         );
 
-        // 1. Insert Character
         const { data: character, error: charError } = await supabase
             .from('characters')
             .insert({
@@ -73,7 +81,6 @@ export class CharacterService {
 
         if (charError || !character) throw new Error(`Failed to create character: ${charError?.message}`);
 
-        // 2. Insert Attributes
         const { error: statsError } = await supabase
             .from('character_attributes')
             .insert({
@@ -88,14 +95,12 @@ export class CharacterService {
 
         if (statsError) throw new Error(`Failed to create attributes: ${statsError.message}`);
 
-        // 3. Insert Skills
         const skillsToInsert = Object.entries(data.skills)
-            .filter(([_, status]) => status === 'proficient' || status === 'expertise');
+            .filter(([, status]) => status === 'proficient' || status === 'expertise');
 
         if (skillsToInsert.length > 0) {
             const skillNames = skillsToInsert.map(([name]) => name);
 
-            // Get Skill IDs first (assuming names match)
             const { data: skillsData, error: skillLookupError } = await supabase
                 .from('skills')
                 .select('id, name')
@@ -122,9 +127,8 @@ export class CharacterService {
             }
         }
 
-        // 4. Insert Saving Throws
         const savesToInsert = Object.entries(data.savingThrows)
-            .filter(([_, isProficient]) => isProficient)
+            .filter(([, isProficient]) => isProficient)
             .map(([ability]) => ({
                 character_id: character.id,
                 ability,
@@ -142,6 +146,9 @@ export class CharacterService {
         return character;
     }
 
+    /**
+     * Fetches all available character classes.
+     */
     static async getClasses() {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -154,6 +161,9 @@ export class CharacterService {
         return data || [];
     }
 
+    /**
+     * Fetches all available character races.
+     */
     static async getRaces() {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -166,6 +176,9 @@ export class CharacterService {
         return data || [];
     }
 
+    /**
+     * Fetches subclasses, optionally filtered by class ID.
+     */
     static async getSubclasses(classId?: string) {
         const cookieStore = await cookies();
         const supabase = createServerClient(

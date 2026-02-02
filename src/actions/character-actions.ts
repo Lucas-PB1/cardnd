@@ -3,8 +3,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { CharacterService } from '@/services/character/CharacterService';
+import { CharacterData } from '@/types/character';
 
-export async function saveCharacter(characterData: any) {
+/**
+ * Server action to save character data.
+ */
+export async function saveCharacter(characterData: CharacterData) {
     try {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -29,12 +33,15 @@ export async function saveCharacter(characterData: any) {
 
         const character = await CharacterService.createCharacter(user.id, characterData);
         return { success: true, characterId: character.id };
-    } catch (error: any) {
+    } catch (error) {
         console.error('Save error:', error);
-        return { error: error.message || 'Failed to save character' };
+        return { error: error instanceof Error ? error.message : 'Failed to save character' };
     }
 }
 
+/**
+ * Server action to fetch all characters for the current user.
+ */
 export async function getCharacters() {
     try {
         const cookieStore = await cookies();
@@ -64,6 +71,9 @@ export async function getCharacters() {
     }
 }
 
+/**
+ * Server action to fetch available character classes.
+ */
 export async function getClasses() {
     try {
         return await CharacterService.getClasses();
@@ -73,6 +83,9 @@ export async function getClasses() {
     }
 }
 
+/**
+ * Server action to fetch available character races.
+ */
 export async function getRaces() {
     try {
         return await CharacterService.getRaces();
@@ -82,6 +95,9 @@ export async function getRaces() {
     }
 }
 
+/**
+ * Server action to fetch subclasses for a given class.
+ */
 export async function getSubclasses(classId?: string) {
     try {
         return await CharacterService.getSubclasses(classId);

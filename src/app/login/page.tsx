@@ -7,6 +7,10 @@ import { ScrollCard } from '@/components/dnd/ScrollCard';
 import { loginWithEmail } from '@/actions/auth-actions';
 import { Scroll } from 'lucide-react';
 
+/**
+ * Login page component.
+ * Allows users to authenticate via email OTP.
+ */
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);

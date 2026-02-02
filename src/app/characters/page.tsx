@@ -8,9 +8,19 @@ import { ManualCharacterForm } from '@/components/dnd/ManualCharacterForm';
 import { getCharacters } from '@/actions/character-actions';
 import { Plus, Users, Skull } from 'lucide-react';
 
+interface Character {
+    id: string;
+    name: string;
+    class: string;
+    race: string;
+    level: number;
+    hp_max: number;
+    hp_current: number;
+}
+
 export default function CharactersPage() {
     const [isCreating, setIsCreating] = useState(false);
-    const [characters, setCharacters] = useState<any[]>([]);
+    const [characters, setCharacters] = useState<Character[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchCharacters = async () => {
@@ -65,7 +75,6 @@ export default function CharactersPage() {
                     </div>
                 )}
 
-                {/* Character Grid */}
                 {isLoading ? (
                     <div className="text-center py-12 text-stone-500 font-serif animate-pulse">
                         Divining character locations...

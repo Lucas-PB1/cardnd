@@ -9,6 +9,9 @@ import { useAuth } from '@/components/providers/AuthContext';
 import { updateProfile } from '@/actions/profile-actions';
 import { User, ScrollText, Wand2 } from 'lucide-react';
 
+/**
+ * User settings page where profiles can be updated.
+ */
 export default function SettingsPage() {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
@@ -22,12 +25,11 @@ export default function SettingsPage() {
 
     useEffect(() => {
         if (user) {
-            // Check properly if profile property exists on the user object
-            const profile = (user as any).profile || {};
+            const profile = user.profile || {};
             setFormData({
-                displayName: profile.display_name || user.user_metadata?.display_name || '',
-                bio: profile.bio || user.user_metadata?.bio || '',
-                characterClass: profile.character_class || user.user_metadata?.character_class || ''
+                displayName: profile.display_name || (user.user_metadata?.display_name as string) || '',
+                bio: profile.bio || (user.user_metadata?.bio as string) || '',
+                characterClass: profile.character_class || (user.user_metadata?.character_class as string) || ''
             });
         }
     }, [user]);
@@ -45,7 +47,7 @@ export default function SettingsPage() {
             } else {
                 setMessage({ type: 'success', text: 'Chronicle updated internally! (Refresh to see changes)' });
             }
-        } catch (err) {
+        } catch {
             setMessage({ type: 'error', text: 'Failed to inscribe runes.' });
         } finally {
             setIsLoading(false);

@@ -2,6 +2,9 @@
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 
+/**
+ * Updates the user profile data in the database.
+ */
 export async function updateProfile(data: { displayName?: string; bio?: string; characterClass?: string }) {
     const cookieStore = await cookies();
 

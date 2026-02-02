@@ -1,15 +1,13 @@
 import React from 'react';
-import { cn } from '@/lib/utils'; // Assuming cn utility exists, usually common in Next.js projects with shadcn or similar. If not, I'll need to create it or just use strings.
-
-// Fallback for cn if not present, though most modern setups have it.
-// I will just use template literals if I'm not sure, but to follow "best modern standards", I'll assume standard utility class usage.
-// Actually, I'll implement a safe version locally if needed, but standard projects usually have it.
-// To be safe, I will implement a simple utility or assume standard tailwind.
+import { cn } from '@/lib/utils';
 
 interface DragonInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
 }
 
+/**
+ * A themed input component with a dragon-inspired aesthetic.
+ */
 export function DragonInput({ className, label, id, ...props }: DragonInputProps) {
     return (
         <div className="flex flex-col gap-1.5">
@@ -31,7 +29,6 @@ export function DragonInput({ className, label, id, ...props }: DragonInputProps
             transition-all duration-300`, className)}
                     {...props}
                 />
-                {/* Dragon scale texture overlay or similar could go here with pseudo elements if more advanced css were used */}
             </div>
         </div>
     );
